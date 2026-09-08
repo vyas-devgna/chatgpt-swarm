@@ -40,6 +40,22 @@ test('mounts Chat-only controls on a sanitized Project page', async () => {
   await page.goto('https://chatgpt.com/g/g-p-00000000000000000000000000000000-example/project');
   await expect(page.locator('#chatgpt-swarm-root').locator('button')).toHaveText('Swarm');
   await expect(page.locator('#chatgpt-swarm-sidebar-root').locator('button')).toHaveText('Swarm');
+  await expect(page.locator('[data-testid="composer-stack"] > #chatgpt-swarm-root')).toHaveCount(1);
+  await page.locator('#chatgpt-swarm-sidebar-root').locator('button').click();
+  await expect(page.locator('#chatgpt-swarm-root').locator('button')).toBeFocused();
+});
+
+test('does not show a dead-end Swarm sidebar item outside an eligible Project chat', async () => {
+  context = await launchExtension();
+  await context.route('https://chatgpt.com/**', async (route) => {
+    await route.fulfill({
+      contentType: 'text/html',
+      body: readFileSync(resolve('fixtures/sidebar-expanded.html'), 'utf8'),
+    });
+  });
+  const page = await context.newPage();
+  await page.goto('https://chatgpt.com/projects');
+  await expect(page.locator('#chatgpt-swarm-sidebar-root')).toHaveCount(0);
 });
 
 test('never mounts a Swarm action in Work mode', async () => {

@@ -1,2 +1,13 @@
 <header><button role="radio" data-tpp-toggle-value="chatgpt" aria-checked="true">Chat</button></header>
-<main><h1>Example Project</h1><form><div role="textbox" contenteditable="true"><p>New chat in Example Project</p></div></form></main>
+<main>
+  <h1>Example Project</h1>
+  <div data-testid="composer-stack">
+    <div data-testid="composer-shell" style="display: flex; height: 52px; flex-direction: column">
+      <form>
+        <div role="textbox" contenteditable="true">
+          <p data-empty-paragraph="true" data-placeholder="New chat in Example Project"><br /></p>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>

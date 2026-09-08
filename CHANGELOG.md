@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-08
+
+### Fixed
+
+- Mount the Captain controls above ChatGPT's constrained composer shell so they remain visible.
+- Show the sidebar shortcut only in eligible Project Chat surfaces and focus the Captain control instead of redirecting to Projects.
+- Match the sidebar shortcut's spacing to ChatGPT's navigation.
+
+## [0.1.0] - 2026-09-08
+
 ### Added
 
 - Initial project structure with WXT, TypeScript, Vitest

@@ -278,12 +278,12 @@ function mountCaptainUi(): void {
     return;
   }
   if (document.getElementById(HOST_ID)) return;
-  const parent = locateComposerMount();
-  if (!parent) return;
+  const composerContainer = locateComposerMount();
+  if (!composerContainer?.parentElement) return;
   const host = document.createElement('div');
   host.id = HOST_ID;
   host.attachShadow({ mode: 'open' });
-  parent.prepend(host);
+  composerContainer.before(host);
   renderUi();
 }
 
@@ -297,7 +297,8 @@ function observeMounts(): void {
 }
 
 function mountSidebarUi(): void {
-  if (getCapabilities().surface.value === 'work') {
+  const capabilities = getCapabilities();
+  if (capabilities.surface.value !== 'chat' || !extractProjectId(location.href)) {
     document.getElementById(SIDEBAR_HOST_ID)?.remove();
     return;
   }
@@ -308,20 +309,19 @@ function mountSidebarUi(): void {
   host.id = SIDEBAR_HOST_ID;
   const shadow = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
-  style.textContent = `:host{display:block;font:inherit;color:inherit}button{box-sizing:border-box;width:100%;min-height:36px;border:0;border-radius:8px;padding:8px 10px;text-align:left;background:transparent;color:inherit;font:inherit;cursor:pointer}button:hover,button:focus-visible{background:color-mix(in srgb,currentColor 9%,transparent);outline:none}`;
+  style.textContent = `:host{display:block;font:inherit;color:inherit}button{box-sizing:border-box;display:flex;align-items:center;position:relative;width:100%;min-height:36px;border:0;border-radius:8px;padding:8px 10px 8px 44px;text-align:left;line-height:20px;background:transparent;color:inherit;font:inherit;cursor:pointer}button::before{content:'✦';position:absolute;left:14px;width:18px;text-align:center;font-size:16px}button:hover,button:focus-visible{background:color-mix(in srgb,currentColor 9%,transparent);outline:none}`;
   const button = document.createElement('button');
   button.type = 'button';
   button.textContent = 'Swarm';
   button.setAttribute('aria-label', 'Open ChatGPT Swarm');
   button.addEventListener('click', () => {
+    mountCaptainUi();
     const action = document
       .getElementById(HOST_ID)
       ?.shadowRoot?.querySelector<HTMLButtonElement>('button');
     if (action) {
       action.focus();
       document.getElementById(HOST_ID)?.scrollIntoView({ block: 'nearest' });
-    } else {
-      location.assign('/projects');
     }
   });
   shadow.append(style, button);
