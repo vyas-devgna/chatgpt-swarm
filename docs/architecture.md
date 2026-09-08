@@ -39,7 +39,7 @@ ChatGPT Swarm is a Chromium browser extension (Manifest V3) that adds multi-agen
 │  │  - Scheduler   │  │  - Create      │  │  - storage   │  │
 │  │  - Lifecycle   │  │  - Group       │  │    .local    │  │
 │  │  - Delegation  │  │  - Protect     │  │  - storage   │  │
-│  │  - Recovery    │  │  - Monitor     │  │    .session  │  │
+│  │  - Recovery    │  │  - Monitor     │  │              │  │
 │  │  - Messaging   │  │  - Cleanup     │  │              │  │
 │  └────────────────┘  └────────────────┘  └──────────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -67,29 +67,34 @@ ChatGPT Swarm is a Chromium browser extension (Manifest V3) that adds multi-agen
 ## Module Boundaries
 
 ### Adapter (`src/adapter/chatgpt/`)
+
 - ONLY location for ChatGPT DOM knowledge
 - Multi-strategy detection with confidence scoring
 - Fail-closed behavior below confidence threshold
 - No other module may contain DOM selectors
 
 ### Orchestrator (`src/orchestrator/`)
+
 - Pure state machine logic
 - No DOM references
 - No ChatGPT-specific knowledge
 - Communicates via typed messages
 
 ### Swarm (`src/swarm/`)
+
 - Domain types and schemas
 - Persona management
 - Model policies
 - Working memory
 
 ### Background (`src/background/`)
+
 - Service worker (stateless)
 - Tab management
 - Storage persistence
 
 ### UI (`src/ui/`)
+
 - Shadow DOM injection
 - ChatGPT-native styling
 - Responsive worker grid
@@ -101,10 +106,11 @@ See `src/orchestrator/lifecycle.ts` for the canonical state machine implementati
 ## Recovery
 
 The extension is designed to survive:
+
 - Service worker termination (rehydrates from storage)
-- Tab closure (detects and marks workers as LOST)
+- Tab closure (marks the worker FAILED and exposes Retry)
 - Browser restart (recovers from persisted state)
-- Network interruption (retries with backoff)
+- Temporary page interruption (rehydrates safely without blind resubmission)
 
 ## Security Model
 

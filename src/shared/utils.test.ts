@@ -29,7 +29,9 @@ describe('generateId', () => {
 describe('debounce', () => {
   it('delays function execution', async () => {
     let callCount = 0;
-    const fn = debounce(() => { callCount++; }, 50);
+    const fn = debounce(() => {
+      callCount++;
+    }, 50);
 
     fn();
     fn();
@@ -116,6 +118,14 @@ describe('extractProjectId', () => {
   it('extracts from project URL', () => {
     const id = extractProjectId('https://chatgpt.com/g/12345678-1234-1234-1234-123456789abc');
     expect(id).toBe('12345678-1234-1234-1234-123456789abc');
+  });
+
+  it('removes the readable slug from current Project conversation URLs', () => {
+    expect(
+      extractProjectId(
+        'https://chatgpt.com/g/g-p-6a962ed9f1fc8191986600c861193e67-travel/c/6a965f5c-a654-83ee-b8cc-7fee38e94a6c',
+      ),
+    ).toBe('g-p-6a962ed9f1fc8191986600c861193e67');
   });
 
   it('returns null for non-project URL', () => {

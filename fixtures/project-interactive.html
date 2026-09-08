@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <body>
+    <header>
+      <button role="radio" data-tpp-toggle-value="chatgpt" aria-checked="true">Chat</button>
+    </header>
+    <nav aria-label="Chat history"><a href="/library">Library</a></nav>
+    <main>
+      <form>
+        <div class="ProseMirror" role="textbox" contenteditable="true">Exercise lifecycle</div>
+        <button data-testid="send-button" aria-label="Send prompt" type="submit">Send</button>
+      </form>
+    </main>
+    <script>
+      document.querySelector('form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const composer = document.querySelector('[role="textbox"]');
+        const prompt = composer.textContent;
+        composer.textContent = '';
+        let response;
+        if (prompt.includes('Plan a focused multi-agent swarm')) {
+          response = JSON.stringify({
+            swarm_version: 1,
+            objective: 'Exercise lifecycle',
+            workers: [
+              {
+                name: 'Iris',
+                role: 'Verifier',
+                task: 'Return deterministic evidence.',
+                persona: 'Be concise.',
+                model_policy: 'auto',
+              },
+            ],
+            review_after: false,
+          });
+        } else if (prompt.includes('Synthesize the worker reports')) {
+          response = 'Final synthesis from worker evidence.';
+        } else {
+          if (location.pathname.endsWith('/project')) {
+            history.replaceState(null, '', location.pathname.replace('/project', '/c/worker-1'));
+          }
+          response =
+            '## Result\nLifecycle passed.\n## Evidence\nWorker replied.\n## Risks\nNone.\n## Recommendation\nShip.\n## Open Questions\nNone.';
+        }
+        setTimeout(() => {
+          const section = document.createElement('section');
+          section.dataset.turn = 'assistant';
+          section.dataset.testid = `conversation-turn-${document.querySelectorAll('section').length}`;
+          section.textContent = response;
+          document.querySelector('main').prepend(section);
+        }, prompt.startsWith('You are Iris') ? 750 : 20);
+      });
+    </script>
+  </body>
+</html>

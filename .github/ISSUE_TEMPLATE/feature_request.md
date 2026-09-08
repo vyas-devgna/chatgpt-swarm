@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Suggest a feature for ChatGPT Swarm
-title: "[FEATURE] "
+title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---

@@ -6,3 +6,6 @@ dist/
 *.pem
 .wxt/
 web-ext-artifacts/
+test-results/
+playwright-report/
+scratch/

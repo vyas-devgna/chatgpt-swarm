@@ -21,16 +21,16 @@ ChatGPT Swarm is a local-only browser extension. It does not collect, transmit, 
 
 All extension data is stored locally using Chrome's extension storage APIs:
 
-| Data | Storage | Purpose |
-|---|---|---|
+| Data        | Storage                | Purpose                                    |
+| ----------- | ---------------------- | ------------------------------------------ |
 | Swarm state | `chrome.storage.local` | Track active/completed swarms for recovery |
-| Agent personas | `chrome.storage.local` | User-customized agent configurations |
-| Preferences | `chrome.storage.local` | Extension settings |
-| Active tab mapping | `chrome.storage.session` | Track which tabs belong to active workers |
+| Preferences | `chrome.storage.local` | Extension settings                         |
+
+Completed and stopped swarm records are retained locally for recovery/history. Records older than 30 days are pruned on extension update or the next swarm start.
 
 ### What is NOT stored:
 
-- Full conversation transcripts (only concise worker report summaries)
+- Full conversation transcripts (only final worker reports and concise summaries; raw reports are cleared after synthesis)
 - Authentication credentials of any kind
 - ChatGPT session cookies or tokens
 - Personal account information
@@ -44,13 +44,9 @@ The extension makes **ZERO network requests** to any server other than chatgpt.c
 - No analytics endpoint
 - No update check beyond Chrome's built-in extension update mechanism
 
-## Diagnostics
+## Limited Use
 
-If you export diagnostics:
-- Conversation IDs are redacted
-- URLs are sanitized
-- Authentication material is never included
-- You control what you share
+ChatGPT page content is processed only to provide the user-triggered swarm workflow described by the extension. It is not sold, used for advertising, transferred to the developer or another third party, or made available for human review. Local processing and storage are disclosed here because website content and user-generated content are user data under Chrome Web Store policy.
 
 ## Data Deletion
 

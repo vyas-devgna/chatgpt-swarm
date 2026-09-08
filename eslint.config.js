@@ -3,7 +3,7 @@ import parser from '@typescript-eslint/parser';
 
 export default [
   {
-    files: ['src/**/*.ts', 'entrypoints/**/*.ts'],
+    files: ['src/**/*.ts', 'tests/**/*.ts', '*.config.ts'],
     languageOptions: {
       parser,
       parserOptions: {

@@ -105,8 +105,8 @@ export function isChatGPTUrl(url: string): boolean {
 export function extractConversationId(url: string): string | null {
   try {
     const parsed = new URL(url);
-    const match = parsed.pathname.match(/\/c\/([a-f0-9-]+)/);
-    return match ? match[1] ?? null : null;
+    const match = parsed.pathname.match(/\/c\/([A-Za-z0-9_-]+)/);
+    return match ? (match[1] ?? null) : null;
   } catch {
     return null;
   }
@@ -120,8 +120,10 @@ export function extractConversationId(url: string): string | null {
 export function extractProjectId(url: string): string | null {
   try {
     const parsed = new URL(url);
-    const match = parsed.pathname.match(/\/(?:g|project)\/([a-f0-9-]+)/);
-    return match ? match[1] ?? null : null;
+    const canonical = parsed.pathname.match(/\/(?:g|project)\/(g-p-[a-f0-9]{32})(?:[-/]|$)/i);
+    if (canonical) return canonical[1] ?? null;
+    const match = parsed.pathname.match(/\/(?:g|project)\/([A-Za-z0-9_-]+)/);
+    return match ? (match[1] ?? null) : null;
   } catch {
     return null;
   }

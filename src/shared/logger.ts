@@ -19,11 +19,17 @@ const REDACTION_PATTERNS: Array<{ pattern: RegExp; replacement: string }> = [
   // ChatGPT conversation IDs in URLs
   { pattern: /\/c\/[a-f0-9-]{36}/gi, replacement: '/c/[REDACTED]' },
   // Generic UUIDs that might be conversation IDs
-  { pattern: /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/gi, replacement: '[UUID-REDACTED]' },
+  {
+    pattern: /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/gi,
+    replacement: '[UUID-REDACTED]',
+  },
   // Bearer tokens
   { pattern: /Bearer\s+[A-Za-z0-9._~+/=-]+/gi, replacement: 'Bearer [REDACTED]' },
   // Authorization headers
-  { pattern: /authorization['":\s]+[A-Za-z0-9._~+/=-]+/gi, replacement: 'authorization: [REDACTED]' },
+  {
+    pattern: /authorization['":\s]+[A-Za-z0-9._~+/=-]+/gi,
+    replacement: 'authorization: [REDACTED]',
+  },
   // Cookie values
   { pattern: /cookie['":\s]+[^\s;]+/gi, replacement: 'cookie: [REDACTED]' },
   // Session tokens

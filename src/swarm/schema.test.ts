@@ -3,10 +3,12 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import { MAX_OBJECTIVE_LENGTH, MAX_REPORT_LENGTH } from '../shared/constants.js';
 import {
   validateDelegation,
   extractJsonFromResponse,
   parseDelegationResponse,
+  validateRuntimeMessage,
 } from './schema.js';
 
 describe('DelegationSchema', () => {
@@ -175,13 +177,65 @@ describe('DelegationSchema', () => {
     const input = {
       swarm_version: 1,
       objective: 'Test unicode',
-      workers: [
-        { name: '分析者', role: 'アーキテクト', task: '構造を分析する' },
-      ],
+      workers: [{ name: '分析者', role: 'アーキテクト', task: '構造を分析する' }],
     };
     const result = validateDelegation(input);
     expect(result).not.toBeNull();
     expect(result?.workers[0]?.name).toBe('分析者');
+  });
+});
+
+describe('runtime message validation', () => {
+  it('accepts known messages and rejects unknown commands', () => {
+    expect(
+      validateRuntimeMessage({ type: 'PAGE_READY', payload: { url: 'https://chatgpt.com/' } }),
+    ).not.toBeNull();
+    expect(
+      validateRuntimeMessage({
+        type: 'SWARM_COMMAND',
+        payload: { command: 'DELETE_ALL', swarmId: 'x' },
+      }),
+    ).toBeNull();
+    expect(validateRuntimeMessage({ type: 'UNKNOWN', payload: {} })).toBeNull();
+  });
+
+  it('rejects non-URL tab claims and oversized model output', () => {
+    expect(
+      validateRuntimeMessage({ type: 'PAGE_READY', payload: { url: 'javascript:alert(1)' } }),
+    ).toBeNull();
+    expect(
+      validateRuntimeMessage({
+        type: 'START_SWARM',
+        payload: {
+          captainUrl: 'https://chatgpt.com/g/g-p-project/project',
+          projectId: 'g-p-project',
+          plan: {
+            swarmVersion: 1,
+            objective: 'x'.repeat(MAX_OBJECTIVE_LENGTH + 1),
+            workers: [],
+            reviewAfter: false,
+          },
+        },
+      }),
+    ).toBeNull();
+    expect(
+      validateRuntimeMessage({
+        type: 'WORKER_RESULT',
+        payload: {
+          swarmId: 's',
+          agentId: 'a',
+          report: {
+            result: 'ok',
+            evidence: '',
+            risks: '',
+            recommendation: '',
+            openQuestions: '',
+            rawResponse: 'x'.repeat(MAX_REPORT_LENGTH + 1),
+            capturedAt: 1,
+          },
+        },
+      }),
+    ).toBeNull();
   });
 });
 

@@ -2,12 +2,14 @@
 
 > Turn ChatGPT Project conversations into lightweight multi-agent swarm workflows — no API key required.
 
+> **Engineering preview:** Source is published for review and development. OpenAI's current consumer Terms prohibit automatically/programmatically extracting Output, which this extension does to relay worker reports. Do not deploy it against ChatGPT consumer services unless your use is authorized and compliant. See [POLICY.md](POLICY.md).
+
 [![CI](https://github.com/vyas-devgna/chatgpt-swarm/actions/workflows/ci.yml/badge.svg)](https://github.com/vyas-devgna/chatgpt-swarm/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## What Swarm Does
 
-ChatGPT Swarm is a Chromium browser extension that adds multi-agent orchestration to your existing ChatGPT Plus conversations. It treats real ChatGPT Project conversations as agent processes:
+ChatGPT Swarm is a Chromium browser extension that adds multi-agent orchestration to ChatGPT Project **Chat** conversations. It treats real Project conversations as agent processes without using an API key. Work mode is intentionally unsupported.
 
 1. **You write a task** in a ChatGPT Project conversation
 2. **You press "Swarm"** — the current conversation becomes Captain
@@ -21,7 +23,7 @@ ChatGPT Swarm is a Chromium browser extension that adds multi-agent orchestratio
 
 - 🐝 **Multi-agent orchestration** — 1–4 concurrent workers with distinct roles
 - 🎭 **Agent personas** — Specialized reasoning styles (Architect, Security Reviewer, Critic, etc.)
-- 🔄 **Recovery** — Survives tab close, browser restart, service worker death
+- 🔄 **Recovery** — Rehydrates persisted swarms and lets you retry closed worker tabs
 - 🔒 **Privacy-first** — No backend, no telemetry, no API key, all state local
 - 🎨 **Native feel** — Integrates into ChatGPT's existing UI
 - ♿ **Accessible** — Keyboard navigable, screen reader compatible
@@ -46,6 +48,7 @@ npm run build
 ```
 
 Then load the extension in Chrome:
+
 1. Go to `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked"
@@ -54,17 +57,17 @@ Then load the extension in Chrome:
 ### Requirements
 
 - Chromium-based browser (Chrome, Edge, Brave, Arc)
-- ChatGPT Plus subscription (for the models and conversation features)
+- A ChatGPT account with Projects enabled
 - At least one ChatGPT Project
 
 ## Permissions
 
-| Permission | Why |
-|---|---|
-| `storage` | Persist swarm state, preferences, and recovery data locally |
-| `tabs` | Create and manage worker conversation tabs |
-| `tabGroups` | Group worker tabs together for organization |
-| `chatgpt.com` (host) | Inject the Swarm UI and adapter into ChatGPT pages |
+| Permission           | Why                                                         |
+| -------------------- | ----------------------------------------------------------- |
+| `storage`            | Persist swarm state, preferences, and recovery data locally |
+| `tabs`               | Create and manage worker conversation tabs                  |
+| `tabGroups`          | Group worker tabs together for organization                 |
+| `chatgpt.com` (host) | Inject the Swarm UI and adapter into ChatGPT pages          |
 
 The extension does NOT request: `cookies`, `history`, `downloads`, `webRequest`, `debugger`, or `<all_urls>`.
 
@@ -73,14 +76,14 @@ The extension does NOT request: `cookies`, `history`, `downloads`, `webRequest`,
 ```
 ChatGPT page (chatgpt.com)
     ├── Your conversation (Captain)
-    ├── Swarm workspace overlay (Shadow DOM)
+    ├── Integrated Swarm controls (Shadow DOM)
     └── Content script (adapter + UI)
          │
          ▼
 Extension Service Worker (stateless)
     ├── Orchestrator (scheduler, lifecycle, delegation)
     ├── Tab manager (create, group, protect, recover)
-    └── Persistence (chrome.storage.local/session)
+    └── Persistence (chrome.storage.local)
          │
          ▼
 Worker tabs (background ChatGPT conversations)
@@ -104,7 +107,7 @@ User task → Captain analyzes → Delegates to workers
                         Captain synthesizes result
 ```
 
-Workers produce structured reports (Result, Evidence, Risks, Recommendation) that flow back to Captain for synthesis. The user can intervene in any worker conversation at any time.
+Workers produce structured reports (Result, Evidence, Risks, Recommendation) that flow back to Captain for synthesis. Open chat links keep every worker inspectable and available for manual intervention.
 
 ## Privacy
 
@@ -136,38 +139,49 @@ npm run check
 
 # Production build
 npm run build
+
+# Packaged extension smoke tests
+npm run test:e2e
+
+# Complete local release gate
+npm run verify
 ```
 
 ## Testing
 
 The project uses four testing levels:
 
-| Level | Tool | What | CI |
-|---|---|---|---|
-| Unit | Vitest | Pure logic, schemas, state machine | ✅ |
-| Fixture | Vitest + happy-dom | Adapter against sanitized DOM fixtures | ✅ |
-| E2E | Playwright | Real ChatGPT, authenticated | Manual |
-| Chaos | Manual | Recovery, soak, reliability | Manual |
+| Level             | Tool               | What                                               | CI     |
+| ----------------- | ------------------ | -------------------------------------------------- | ------ |
+| Unit              | Vitest             | Pure logic, schemas, state machine                 | ✅     |
+| Fixture           | Vitest + happy-dom | Adapter against sanitized DOM fixtures             | ✅     |
+| Packaged E2E      | Playwright         | MV3 load, Chat/Work isolation, lifecycle, recovery | ✅     |
+| Authenticated E2E | Unpacked Chromium  | Real ChatGPT Project Chat                          | Manual |
+| Chaos             | Manual             | Recovery, soak, reliability                        | Manual |
 
 See [docs/testing.md](docs/testing.md) for the complete testing strategy.
 
 ## Known Limitations
 
 - ChatGPT's DOM structure changes frequently — the adapter may need updates after major ChatGPT UI changes
+- Swarms run only on the Chat surface; Work mode fails closed
+- ChatGPT controls model availability. V1 uses Auto and records requested capability fallbacks
 - Maximum 4 concurrent workers (by design, not a bug)
 - Worker conversations consume your ChatGPT message quota
 - Extension detects incompatibility and disables itself safely rather than guessing
+- Authenticated unpacked-extension and 30-run soak gates are not yet complete
+- Chrome Web Store submission is blocked pending OpenAI authorization and store disclosure/onboarding work
 
 ## Browser Compatibility
 
-| Browser | Status |
-|---|---|
-| Chrome 120+ | ✅ Supported |
-| Edge 120+ | ✅ Expected to work |
-| Brave | ⚠️ Untested |
-| Arc | ⚠️ Untested |
-| Firefox | ❌ Not supported (Manifest V3 differences) |
-| Safari | ❌ Not supported |
+| Browser     | Status                                     |
+| ----------- | ------------------------------------------ |
+| Chrome 120+ | ✅ Supported                               |
+| Edge 120+   | ✅ Expected to work                        |
+| Brave       | ⚠️ Untested                                |
+| Arc         | ⚠️ Untested                                |
+| Firefox     | ❌ Not supported (Manifest V3 differences) |
+| Safari      | ❌ Not supported                           |
 
 ## Security Reporting
 

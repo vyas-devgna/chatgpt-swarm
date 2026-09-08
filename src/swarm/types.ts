@@ -28,6 +28,7 @@ export type SwarmStatus =
   | 'SYNTHESIZING'
   | 'COMPLETE'
   | 'FAILED'
+  | 'PAUSED'
   | 'STOPPED';
 
 // ─── Agent Identity ─────────────────────────────────────────────────
@@ -284,4 +285,38 @@ export interface CapabilityCheckPayload {
 
 export interface PingPayload {
   timestamp: number;
+}
+
+/** Messages sent between the background worker and page content scripts. */
+export type RuntimeMessage =
+  | { type: 'PING'; payload: PingPayload }
+  | { type: 'PAGE_READY'; payload: { url: string } }
+  | {
+      type: 'START_SWARM';
+      payload: {
+        captainUrl: string;
+        projectId: string;
+        plan: DelegationPlan;
+      };
+    }
+  | { type: 'WORKER_RUNNING'; payload: { swarmId: string; agentId: string; url: string } }
+  | { type: 'WORKER_RESULT'; payload: WorkerResultPayload }
+  | {
+      type: 'SWARM_COMMAND';
+      payload: {
+        command: 'STOP' | 'PAUSE' | 'RESUME' | 'MERGE_NOW' | 'RETRY';
+        swarmId: string;
+        agentId?: string;
+      };
+    }
+  | { type: 'RUN_WORKER'; payload: { swarmId: string; agentId: string; prompt: string } }
+  | { type: 'STOP_WORKER'; payload: { swarmId: string; agentId: string } }
+  | { type: 'SYNTHESIZE'; payload: { swarmId: string; prompt: string } };
+
+/** Serializable background response. */
+export interface RuntimeResponse {
+  ok: boolean;
+  error?: string;
+  swarm?: SwarmState;
+  assignment?: Extract<RuntimeMessage, { type: 'RUN_WORKER' }>['payload'];
 }

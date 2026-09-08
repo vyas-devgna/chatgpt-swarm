@@ -9,5 +9,5 @@ export default defineConfig({
     version: '0.1.0',
     permissions: ['storage', 'tabs', 'tabGroups'],
     host_permissions: ['https://chatgpt.com/*'],
-  }
+  },
 });
