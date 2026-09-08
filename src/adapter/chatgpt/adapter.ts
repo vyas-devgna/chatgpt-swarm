@@ -225,10 +225,25 @@ export function getChatSurface(root: ParentNode = document): CapabilityResult<'c
         fallbacksUsed: [...SELECTORS.workSurface, ...SELECTORS.chatSurface],
       };
   }
+  if (
+    findFirst(root, SELECTORS.projectHomeLink).value &&
+    locateComposer(root).confidence >= MIN_CONFIDENCE_THRESHOLD
+  )
+    return {
+      value: 'chat',
+      confidence: 0.95,
+      strategy: 'project-header',
+      fallbacksUsed: [...SELECTORS.workSurface, ...SELECTORS.chatSurface, ...SELECTORS.pageBanner],
+    };
   return {
     value: null,
     confidence: 0,
     strategy: 'none',
-    fallbacksUsed: [...SELECTORS.workSurface, ...SELECTORS.chatSurface, ...SELECTORS.pageBanner],
+    fallbacksUsed: [
+      ...SELECTORS.workSurface,
+      ...SELECTORS.chatSurface,
+      ...SELECTORS.pageBanner,
+      ...SELECTORS.projectHomeLink,
+    ],
   };
 }

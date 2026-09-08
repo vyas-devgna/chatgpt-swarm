@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-09-08
+
+### Fixed
+
+- Recognize current Project Chat conversations from their project header when ChatGPT omits the Chat/Work surface controls.
+- Continue to fail closed when a Project header identifies Work mode.
+
 ## [0.1.2] - 2026-09-08
 
 ### Added

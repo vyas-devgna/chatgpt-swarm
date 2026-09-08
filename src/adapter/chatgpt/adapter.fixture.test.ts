@@ -21,6 +21,15 @@ describe('sanitized ChatGPT fixtures', () => {
     expect(getGenerationState()).toBe('idle');
   });
 
+  it('detects current Project conversations when ChatGPT omits the surface radios', () => {
+    load('project-conversation.html');
+    expect(getChatSurface()).toMatchObject({
+      value: 'chat',
+      confidence: 0.95,
+      strategy: 'project-header',
+    });
+  });
+
   it('distinguishes streaming from completed turns', () => {
     load('chat-streaming.html');
     expect(getGenerationState()).toBe('streaming');

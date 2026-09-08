@@ -20,6 +20,7 @@ export const SELECTORS = {
   chatSurface: ['[role="radio"][data-tpp-toggle-value="chatgpt"][aria-checked="true"]'],
   workSurface: ['[role="radio"][data-tpp-toggle-value="work"][aria-checked="true"]'],
   pageBanner: ['header', '[role="banner"]'],
+  projectHomeLink: ['a[href*="/g/g-p-"][href$="/project"]'],
   conversationRoot: ['main', '[role="main"]'],
   sidebarNavigation: ['nav[aria-label="Chat history"]', 'nav'],
   libraryLink: ['a[href^="/library"]'],
