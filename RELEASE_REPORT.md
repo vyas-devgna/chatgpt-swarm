@@ -59,10 +59,14 @@ Swarm state, tasks, concise report summaries, and recovery metadata stay in `chr
 
 ## Installation for authorized development
 
-1. Run `npm ci && npm run verify && npm run zip`.
+Do not download GitHub's automatically generated **Source code (zip)** archive. It has no generated extension manifest, and Chrome cannot load an extension directly from a ZIP file.
+
+1. Download [`chatgpt-swarm-0.1.0-chrome.zip`](https://github.com/vyas-devgna/chatgpt-swarm/releases/download/v0.1.0/chatgpt-swarm-0.1.0-chrome.zip) and extract it.
 2. Open `chrome://extensions` in a user-controlled Chromium profile.
-3. Enable Developer mode and load `.output/chrome-mv3` unpacked.
+3. Enable Developer mode, click **Load unpacked**, and select the extracted directory containing `manifest.json`.
 4. Use only an authorized disposable ChatGPT Project **Chat** surface; never Work mode.
+
+Source developers can instead run `npm ci && npm run verify && npm run zip`, then load `.output/chrome-mv3` unpacked.
 
 ## Release identity
 
