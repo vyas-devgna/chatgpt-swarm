@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-08
+
+### Added
+
+- Keep the Swarm sidebar entry available outside Projects and explain the Project Chat workflow in an accessible native dialog.
+
+### Fixed
+
+- Replace the placeholder star glyph with a consistent vector agent-network icon.
+- Label the composer action and its prerequisites explicitly.
+- Use the browser's native contenteditable input path so ChatGPT receives orchestration prompts reliably.
+
 ## [0.1.1] - 2026-09-08
 
 ### Fixed

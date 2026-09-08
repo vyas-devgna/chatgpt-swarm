@@ -1,6 +1,6 @@
 # Release Quality Report
 
-Version: **0.1.1 engineering preview**
+Version: **0.1.2 engineering preview**
 Status: **source/package candidate; not a daily-use or browser-store release**
 Repository: https://github.com/vyas-devgna/chatgpt-swarm
 Report date: 2026-09-08
@@ -49,7 +49,7 @@ Report date: 2026-09-08
 
 - No authenticated unpacked-extension swarm has completed against the live account.
 - The required 30+ real-swarm chaos/soak matrix, zoom/theme/screen-reader matrix, and normal-use beta period are incomplete.
-- Manual model selection, persona editing, Add agent, Pause/Resume, explicit `REQUIRES_USER`, and embedded worker projections are not in 0.1.1; Auto model fallback and Open chat are the deliberate preview scope.
+- Manual model selection, persona editing, Add agent, Pause/Resume, explicit `REQUIRES_USER`, and embedded worker projections are not in 0.1.2; Auto model fallback and Open chat are the deliberate preview scope.
 - OpenAI's current consumer Terms prohibit automatically/programmatically extracting Output. Because worker-report relay does that, unrestricted consumer deployment and browser-store publication require authorization or redesign. See [`POLICY.md`](POLICY.md).
 - Chrome Web Store listing consent/onboarding, icons, screenshots, and developer-dashboard disclosures are not prepared.
 
@@ -61,7 +61,7 @@ Swarm state, tasks, concise report summaries, and recovery metadata stay in `chr
 
 Do not download GitHub's automatically generated **Source code (zip)** archive. It has no generated extension manifest, and Chrome cannot load an extension directly from a ZIP file.
 
-1. Download [`chatgpt-swarm-0.1.1-chrome.zip`](https://github.com/vyas-devgna/chatgpt-swarm/releases/download/v0.1.1/chatgpt-swarm-0.1.1-chrome.zip) and extract it.
+1. Download [`chatgpt-swarm-0.1.2-chrome.zip`](https://github.com/vyas-devgna/chatgpt-swarm/releases/download/v0.1.2/chatgpt-swarm-0.1.2-chrome.zip) and extract it.
 2. Open `chrome://extensions` in a user-controlled Chromium profile.
 3. Enable Developer mode, click **Load unpacked**, and select the extracted directory containing `manifest.json`.
 4. Use only an authorized disposable ChatGPT Project **Chat** surface; never Work mode.
@@ -70,7 +70,7 @@ Source developers can instead run `npm ci && npm run verify && npm run zip`, the
 
 ## Release identity
 
-- Release commit: resolved exactly by the immutable `v0.1.1` tag after publication
-- Release tag: `v0.1.1` engineering prerelease
-- Installable archive: `.output/chatgpt-swarm-0.1.1-chrome.zip`
-- Archive SHA-256: `0c96d19755e6c7ea9a760a5cf08e36f375415f6081ae4b5207ff4cd450787694`
+- Release commit: resolved exactly by the immutable `v0.1.2` tag after publication
+- Release tag: `v0.1.2` engineering prerelease
+- Installable archive: `.output/chatgpt-swarm-0.1.2-chrome.zip`
+- Archive SHA-256: `77fe855e754edb7b202bd860706a059bae02fe07e6d7620b3a666fc471c4e611`

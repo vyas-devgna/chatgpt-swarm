@@ -38,14 +38,16 @@ test('mounts Chat-only controls on a sanitized Project page', async () => {
   });
   const page = await context.newPage();
   await page.goto('https://chatgpt.com/g/g-p-00000000000000000000000000000000-example/project');
-  await expect(page.locator('#chatgpt-swarm-root').locator('button')).toHaveText('Swarm');
+  await expect(page.locator('#chatgpt-swarm-root').locator('button')).toHaveText('Run swarm');
   await expect(page.locator('#chatgpt-swarm-sidebar-root').locator('button')).toHaveText('Swarm');
   await expect(page.locator('[data-testid="composer-stack"] > #chatgpt-swarm-root')).toHaveCount(1);
   await page.locator('#chatgpt-swarm-sidebar-root').locator('button').click();
-  await expect(page.locator('#chatgpt-swarm-root').locator('button')).toBeFocused();
+  await expect(page.locator('#chatgpt-swarm-guide-root')).toContainText('Start a swarm');
+  await page.getByRole('button', { name: 'Focus task box' }).click();
+  await expect(page.locator('[role="textbox"]')).toBeFocused();
 });
 
-test('does not show a dead-end Swarm sidebar item outside an eligible Project chat', async () => {
+test('shows useful Swarm guidance outside a Project chat', async () => {
   context = await launchExtension();
   await context.route('https://chatgpt.com/**', async (route) => {
     await route.fulfill({
@@ -55,7 +57,11 @@ test('does not show a dead-end Swarm sidebar item outside an eligible Project ch
   });
   const page = await context.newPage();
   await page.goto('https://chatgpt.com/projects');
-  await expect(page.locator('#chatgpt-swarm-sidebar-root')).toHaveCount(0);
+  await page.locator('#chatgpt-swarm-sidebar-root').locator('button').click();
+  await expect(page.locator('#chatgpt-swarm-guide-root')).toContainText(
+    'Swarm runs inside Project Chat',
+  );
+  await expect(page.getByRole('button', { name: 'Browse projects' })).toBeVisible();
 });
 
 test('never mounts a Swarm action in Work mode', async () => {
@@ -70,6 +76,7 @@ test('never mounts a Swarm action in Work mode', async () => {
   await page.goto('https://chatgpt.com/g/g-p-00000000000000000000000000000000-example/project');
   await expect(page.locator('#chatgpt-swarm-root')).toHaveCount(0);
   await expect(page.locator('#chatgpt-swarm-sidebar-root')).toHaveCount(0);
+  await expect(page.locator('#chatgpt-swarm-guide-root')).toHaveCount(0);
 });
 
 test('removes every Swarm action when a Project switches from Chat to Work', async () => {
@@ -107,7 +114,10 @@ test('completes a packaged Captain-worker-synthesis lifecycle', async () => {
   });
   const page = await context.newPage();
   await page.goto('https://chatgpt.com/g/g-p-00000000000000000000000000000000-example/c/captain-1');
-  await page.locator('#chatgpt-swarm-root').locator('button', { hasText: 'Swarm' }).click();
+  await page
+    .locator('#chatgpt-swarm-root')
+    .getByRole('button', { name: 'Plan this task with Swarm' })
+    .click();
   await expect
     .poll(
       () =>
@@ -153,7 +163,10 @@ test('recovers a closed worker with Retry', async () => {
   await captain.goto(
     'https://chatgpt.com/g/g-p-00000000000000000000000000000000-example/c/captain-retry',
   );
-  await captain.locator('#chatgpt-swarm-root').locator('button', { hasText: 'Swarm' }).click();
+  await captain
+    .locator('#chatgpt-swarm-root')
+    .getByRole('button', { name: 'Plan this task with Swarm' })
+    .click();
   await expect(captain.locator('#chatgpt-swarm-root')).toContainText('RUNNING');
   const failedWorker = context
     .pages()
@@ -181,7 +194,10 @@ test('recovers synthesis after the Captain tab is reopened', async () => {
     'https://chatgpt.com/g/g-p-00000000000000000000000000000000-example/c/captain-reopen';
   const captain = await context.newPage();
   await captain.goto(captainUrl);
-  await captain.locator('#chatgpt-swarm-root').locator('button', { hasText: 'Swarm' }).click();
+  await captain
+    .locator('#chatgpt-swarm-root')
+    .getByRole('button', { name: 'Plan this task with Swarm' })
+    .click();
   await expect(captain.locator('#chatgpt-swarm-root')).toContainText('RUNNING');
   await captain.close();
 

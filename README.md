@@ -40,7 +40,7 @@ ChatGPT Swarm is a Chromium browser extension that adds multi-agent orchestratio
 
 ### Engineering Preview Release
 
-Download [`chatgpt-swarm-0.1.1-chrome.zip`](https://github.com/vyas-devgna/chatgpt-swarm/releases/download/v0.1.1/chatgpt-swarm-0.1.1-chrome.zip), extract it, then choose the extracted directory in Chrome's **Load unpacked** dialog. That directory must contain `manifest.json` at its root.
+Download [`chatgpt-swarm-0.1.2-chrome.zip`](https://github.com/vyas-devgna/chatgpt-swarm/releases/download/v0.1.2/chatgpt-swarm-0.1.2-chrome.zip), extract it, then choose the extracted directory in Chrome's **Load unpacked** dialog. That directory must contain `manifest.json` at its root.
 
 > Do not use GitHub's automatically generated **Source code (zip)** archive: it contains the project source, not the built extension. Chrome also cannot load the extension directly from a ZIP file.
 

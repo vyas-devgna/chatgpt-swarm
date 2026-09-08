@@ -60,6 +60,25 @@ describe('ChatGPT adapter', () => {
     expect(click).toHaveBeenCalledOnce();
   });
 
+  it('uses the native editing path for ChatGPT contenteditable composers', async () => {
+    document.body.innerHTML =
+      '<form><div role="textbox" contenteditable="true"></div><button data-testid="send-button" type="button">Send</button></form>';
+    const composer = document.querySelector<HTMLElement>('[role="textbox"]');
+    const execCommand = vi.fn((_command: string, _showUi: boolean, value: string) => {
+      if (composer) composer.textContent = value;
+      return true;
+    });
+    Object.defineProperty(document, 'execCommand', { configurable: true, value: execCommand });
+
+    try {
+      await expect(sendMessage('native input')).resolves.toBe(true);
+      expect(execCommand).toHaveBeenCalledWith('insertText', false, 'native input');
+      expect(composer?.textContent).toBe('native input');
+    } finally {
+      Reflect.deleteProperty(document, 'execCommand');
+    }
+  });
+
   it('detects streaming and reads the latest assistant result', () => {
     document.body.innerHTML =
       '<section data-turn="assistant" data-testid="conversation-turn-1">Old</section><section data-turn="assistant" data-testid="conversation-turn-2">Final report</section><button data-testid="stop-button">Stop</button>';

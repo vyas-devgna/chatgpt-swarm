@@ -64,6 +64,20 @@ export function setComposerText(text: string, root: ParentNode = document): bool
     const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
     setter?.call(composer, text);
   } else {
+    const selection = composer.ownerDocument.getSelection();
+    const range = composer.ownerDocument.createRange();
+    range.selectNodeContents(composer);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    try {
+      if (
+        typeof composer.ownerDocument.execCommand === 'function' &&
+        composer.ownerDocument.execCommand('insertText', false, text)
+      )
+        return true;
+    } catch {
+      /* Fall back to a synthetic input event below. */
+    }
     composer.textContent = text;
   }
   composer.dispatchEvent(

@@ -3,6 +3,7 @@ import {
   getComposerText,
   getGenerationState,
   getLastAssistantMessage,
+  locateComposer,
   locateComposerMount,
   locateSidebarAnchor,
   sendMessage,
@@ -27,6 +28,7 @@ import type {
 const log = createLogger('content-script');
 const HOST_ID = 'chatgpt-swarm-root';
 const SIDEBAR_HOST_ID = 'chatgpt-swarm-sidebar-root';
+const GUIDE_HOST_ID = 'chatgpt-swarm-guide-root';
 
 interface PlanningRun {
   objective: string;
@@ -43,7 +45,7 @@ interface WorkerRun {
 let planning: PlanningRun | null = null;
 let workerRun: WorkerRun | null = null;
 let currentSwarm: SwarmState | null = null;
-let statusText = 'Ready';
+let statusText = 'Type a task in the ChatGPT composer, then choose Run swarm.';
 let lastUrl = '';
 let syncingWorkerUrl = false;
 
@@ -298,8 +300,13 @@ function observeMounts(): void {
 
 function mountSidebarUi(): void {
   const capabilities = getCapabilities();
-  if (capabilities.surface.value !== 'chat' || !extractProjectId(location.href)) {
+  const projectId = extractProjectId(location.href);
+  if (
+    capabilities.surface.value === 'work' ||
+    (projectId && capabilities.surface.value !== 'chat')
+  ) {
     document.getElementById(SIDEBAR_HOST_ID)?.remove();
+    document.getElementById(GUIDE_HOST_ID)?.remove();
     return;
   }
   if (document.getElementById(SIDEBAR_HOST_ID)) return;
@@ -309,23 +316,76 @@ function mountSidebarUi(): void {
   host.id = SIDEBAR_HOST_ID;
   const shadow = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
-  style.textContent = `:host{display:block;font:inherit;color:inherit}button{box-sizing:border-box;display:flex;align-items:center;position:relative;width:100%;min-height:36px;border:0;border-radius:8px;padding:8px 10px 8px 44px;text-align:left;line-height:20px;background:transparent;color:inherit;font:inherit;cursor:pointer}button::before{content:'✦';position:absolute;left:14px;width:18px;text-align:center;font-size:16px}button:hover,button:focus-visible{background:color-mix(in srgb,currentColor 9%,transparent);outline:none}`;
+  style.textContent = `:host{display:block;font:inherit;color:inherit}button{box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;min-height:36px;border:0;border-radius:8px;padding:8px 10px;text-align:left;line-height:20px;background:transparent;color:inherit;font:inherit;cursor:pointer}svg{width:20px;height:20px;flex:none}button:hover,button:focus-visible{background:color-mix(in srgb,currentColor 9%,transparent);outline:none}`;
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Swarm';
   button.setAttribute('aria-label', 'Open ChatGPT Swarm');
-  button.addEventListener('click', () => {
-    mountCaptainUi();
-    const action = document
-      .getElementById(HOST_ID)
-      ?.shadowRoot?.querySelector<HTMLButtonElement>('button');
-    if (action) {
-      action.focus();
-      document.getElementById(HOST_ID)?.scrollIntoView({ block: 'nearest' });
-    }
-  });
+  button.append(createSwarmIcon(), 'Swarm');
+  button.addEventListener('click', openSwarmGuide);
   shadow.append(style, button);
   anchor.parentElement.insertBefore(host, anchor);
+}
+
+function createSwarmIcon(): SVGSVGElement {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '1.8');
+  icon.setAttribute('stroke-linecap', 'round');
+  icon.setAttribute('stroke-linejoin', 'round');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML =
+    '<circle cx="12" cy="7" r="3"/><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m10.5 9.6-3 4.8m6-4.8 3 4.8M9 17h6"/>';
+  return icon;
+}
+
+function openSwarmGuide(): void {
+  document.getElementById(GUIDE_HOST_ID)?.remove();
+  const host = document.createElement('div');
+  host.id = GUIDE_HOST_ID;
+  const shadow = host.attachShadow({ mode: 'open' });
+  const style = document.createElement('style');
+  style.textContent = `dialog{box-sizing:border-box;width:min(420px,calc(100vw - 32px));border:1px solid color-mix(in srgb,currentColor 16%,transparent);border-radius:16px;padding:22px;background:Canvas;color:CanvasText;font:14px/1.45 system-ui,sans-serif;box-shadow:0 18px 60px #0005}dialog::backdrop{background:#0006}h2{margin:0 0 8px;font-size:18px}p{margin:0 0 18px;color:color-mix(in srgb,currentColor 72%,transparent)}.actions{display:flex;justify-content:flex-end;gap:8px}button,a{box-sizing:border-box;border:0;border-radius:9px;padding:9px 13px;font:inherit;cursor:pointer;text-decoration:none}.secondary{background:transparent;color:inherit}.primary{background:CanvasText;color:Canvas}`;
+  const dialog = document.createElement('dialog');
+  dialog.setAttribute('aria-labelledby', 'swarm-guide-title');
+  const title = document.createElement('h2');
+  title.id = 'swarm-guide-title';
+  title.textContent = 'Start a swarm';
+  const eligible =
+    getCapabilities().surface.value === 'chat' && Boolean(extractProjectId(location.href));
+  const description = document.createElement('p');
+  description.textContent = eligible
+    ? 'Type your task in the ChatGPT composer. Then choose Run swarm above it to plan and start the workers.'
+    : 'Swarm runs inside Project Chat. Open or create a Project, keep Chat selected, then type the task you want the agents to handle.';
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'secondary';
+  close.textContent = 'Close';
+  close.addEventListener('click', () => dialog.close());
+  const primary = document.createElement('button');
+  primary.type = 'button';
+  primary.className = 'primary';
+  primary.textContent = eligible ? 'Focus task box' : 'Browse projects';
+  primary.addEventListener('click', () => {
+    dialog.close();
+    if (!eligible) {
+      if (location.pathname !== '/projects') location.assign('/projects');
+      return;
+    }
+    mountCaptainUi();
+    setStatus('Type your task in the composer, then choose Run swarm.');
+    locateComposer().value?.focus();
+    document.getElementById(HOST_ID)?.scrollIntoView({ block: 'nearest' });
+  });
+  actions.append(close, primary);
+  dialog.append(title, description, actions);
+  shadow.append(style, dialog);
+  document.body.append(host);
+  dialog.addEventListener('close', () => host.remove(), { once: true });
+  dialog.showModal();
 }
 
 function renderUi(): void {
@@ -349,7 +409,7 @@ function renderUi(): void {
   bar.className = 'bar';
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Swarm';
+  button.textContent = 'Run swarm';
   button.setAttribute('aria-label', 'Plan this task with Swarm');
   button.disabled = planning !== null || currentSwarm?.status === 'RUNNING';
   button.addEventListener('click', () => void beginPlanning());

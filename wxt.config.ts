@@ -6,7 +6,7 @@ export default defineConfig({
   manifest: {
     name: 'ChatGPT Swarm',
     description: 'Turn ChatGPT Project conversations into lightweight multi-agent swarm workflows',
-    version: '0.1.1',
+    version: '0.1.2',
     permissions: ['storage', 'tabs', 'tabGroups'],
     host_permissions: ['https://chatgpt.com/*'],
   },
